@@ -1,0 +1,35 @@
+<html ng-app="myApp">
+<head>
+<title>Basic-Module-Architecture-.</title>
+
+<!--Angular-At-The-Top-->
+<script src="./angular/angular.js"></script>
+<script>
+
+'use strict';
+
+//Module-Children-.-Notice-Member-Value-.
+var module1 = angular.module('module1', []).constant('Module_1', 'module1');
+var module2 = angular.module('module2', []).constant('Module_2', 'module2');
+var module3 = angular.module('module3', []).constant('Module_3', 'module3');
+var module4 = angular.module('module4', []).constant('Module_4', 'module4');
+
+//Modules-Passed-To-App-Through-Dependencies-.
+var myApp = angular.module('myApp',['module1', 'module2', 'module3', 'module4']);
+
+//Modules-Accessed-As-Members-From-Dependency-Injection-.
+function MyCtrl($scope, Module_1, Module_2, Module_3, Module_4){
+   $scope.name = Module_1 + ' and ' + Module_2 + ' and ' + Module_3 + ' and ' + Module_4;
+}
+
+</script>
+</head>
+<body>
+
+<div ng-controller="MyCtrl">
+  Hello, {{name}}!
+</div>
+
+</body>
+
+</html>
