@@ -18,16 +18,127 @@ var module4 = angular.module('module4', []).constant('Module_4', 'module4');
 var myApp = angular.module('myApp',['module1', 'module2', 'module3', 'module4']);
 
 //Modules-Accessed-As-Members-From-Dependency-Injection-.
-function MyCtrl($scope, Module_1, Module_2, Module_3, Module_4){
+function myCtrl($scope, Module_1, Module_2, Module_3, Module_4){
    $scope.name = Module_1 + ' and ' + Module_2 + ' and ' + Module_3 + ' and ' + Module_4;
 }
+
+//Create-A-New-Factory-On-The-App-Module-.
+angular.module('myApp').factory("reusableFactory", function () {
+   return {
+      member1: "12345",
+      member2: "ABCDE",
+      action1:  function(a,b){
+      	debugger;
+      }
+   }
+});
+
+//Create-A-New-Factory-In-Its-Own-Module-.
+angular.module('moduleFactory', []).factory("reusableModuleFactory", function () {
+   return {
+      member1: "12345",
+      member2: "ABCDE",
+      action1:  function(a,b){
+      	debugger;
+      }
+   }
+});
+
+//Create-A-Controller-To-Use-Reusable-Factory-.
+function factoryController($scope, reusableFactory) {
+	$scope.x = reusableFactory.member1;
+	$scope.y = reusableFactory.member2;
+
+}
+
+//Create-A-New-Directive-Module-.
+// angular.module('myApp')
+//   .directive('reusableDirective', [function () {
+// 	 return {
+// 	         restrict: 'A',
+// 	         replace: true,
+// 	         transclude: true,
+// 	         template: '<div class="widget">' +
+// 	            '<div class="content" ng-transclude></div>' +
+// 	            '</div>',
+// 	         link: function (scope, element, attrs) {
+// 	         	debugger;
+// 	            //element.prepend("<div class='title'>" + attrs.title + "</div>");
+// 	         }
+// 	      };
+//   }]);
+
+angular.module('myApp').
+   directive('myWidget', ['reusableFactory', function (reusableFactory) {
+   	  var bbb = reusableFactory;
+      return {
+      	 aaa: reusableFactory,
+         restrict: 'A',
+         scope: true,
+         replace: true,
+         transclude: true,
+         template: '<div class="widget">' +
+            '<div class="content" ng-transclude></div>' +
+            '</div>',
+         link: function (scope, element, attrs, reusableFactory) {
+            element.prepend("<div class='title'>" + attrs.title + "</div>");
+
+            debugger;
+            //Retrieve-Module-Factory-.
+            var factModule = angular.module('moduleFactory', []);
+            //factModule.action1('a','b');
+            //doesn't work.
+
+         }
+      };
+   }]);
+
+angular.module('myApp').
+   directive('myNestWidget', function () {
+      return {
+         restrict: 'A',
+         replace: true,
+         transclude: true,
+         template: '<div class="widget">' +
+            '<div class="content" ng-transclude></div>' +
+            '</div>',
+         link: function (scope, element, attrs) {
+            element.prepend("<div class='title'>Nest Directive: " + attrs.title + "</div>");
+         }
+      };
+   });
 
 </script>
 </head>
 <body>
-
-<div ng-controller="MyCtrl">
+<h3>Controller with multiple Modules:</h3>
+<div ng-controller="myCtrl">
   Hello, {{name}}!
+</div>
+
+<hr>
+<h3>Controller with reusable Factory:</h3>
+<div ng-controller="factoryController">
+  Hello, {{x}}! <br>
+  Hello, {{y}}
+</div>
+
+<hr>
+<h3>Nested Directives (Recursive)</h3>
+<div my-widget title="Outer Widget">
+    This is some content of my outer widget. <br>
+    <div my-widget title="Inner Widget">
+        This now is the content of my inner widget ...
+    </div>
+</div>
+
+<hr>
+<h3>Nested Directives (Siblings)</h3>
+<div my-widget title="Outer Widget">
+    This is some content of my outer widget. <br>
+    <div my-nest-widget title="Inner Widget">
+        This now is the content of my inner widget ...
+    </div>
 </div>
 
 </body>
